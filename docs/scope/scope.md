@@ -78,7 +78,7 @@ Upload a raw take of up to 30 minutes straight to storage, resuming after a drop
 
 ### 7. Processing pipeline with real progress · needs a decision
 A queue runs trim, key, place, transcribe in that fixed order on the worker and reports each step's progress.
-**Done when:** every step chip shows pending, running with a determinate percentage, or done with a check and duration; a failed step says why and can be retried; no spinner anywhere.
+**Done when:** every step chip shows pending, running with a determinate percentage, or done with a check and duration; a failed step says why and can be retried; no spinner anywhere. Until Slice 3 ships, key and place pass the raw take through (marked as skipped on their chips) and the preview is a 720p proxy of the raw take, so no background is needed in this slice.
 - [ ] Design it (spec): `/architect processing pipeline`
 
 ### 8. Trim: pauses as reversible cuts · needs a decision
@@ -95,7 +95,7 @@ The stage: preview on top, timeline beneath with clips, Sandy Brown cut regions 
 
 ### 10. Key and place on the studio background · needs a decision
 Key out the green and composite the person onto the background they uploaded in settings.
-**Done when:** a person can upload or replace their background in settings, processed takes show them on it with no green spill, and the key threshold is shown as a number.
+**Done when:** a person can upload or replace their background in settings, and "Process take" asks for one (with a link to settings) when none is set; processed takes show them on it with no green spill; the key threshold is shown as a number you can change, which reruns key and place for that take; a "Key off" toggle shows the raw take in one click to compare, and "Reset to auto" restores the detected threshold in one click.
 - [ ] Design it (spec): `/architect key and place`
 
 ## Slice 4: Transcript

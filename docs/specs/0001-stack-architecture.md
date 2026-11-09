@@ -45,14 +45,14 @@ Take Studio is one TypeScript monorepo with two deployable services: a Next.js w
 
 **Pipeline.** Finishing an upload queues one pipeline run. The worker runs the four steps in order and writes each step's state, percentage and duration to Postgres. Progress for ffmpeg steps comes from ffmpeg's `-progress` output (time processed divided by take length). Transcription progress comes from splitting the audio into chunks of about two minutes and counting finished chunks.
 
-1. **Trim.** ffmpeg `silencedetect` on the audio at the person's pause length (0.8 s by default) writes numbered cuts. Nothing is removed from the video. The worker also writes waveform peaks for the timeline.
+1. **Trim.** ffmpeg `silencedetect` on the audio at the person's pause length (0.8 s by default) writes numbered cuts. Nothing is removed from the video. The worker also writes waveform peaks for the timeline and renders a 720p proxy of the raw take, so the preview works before key and place have run.
 2. **Key.** ffmpeg `chromakey` plus despill on the full take. The threshold used is stored so the UI can show it as a number.
-3. **Place.** Composites the keyed take over the person's background and renders a 720p preview MP4 of the full take (cuts are skipped during playback, not cut out).
+3. **Place.** Composites the keyed take over the person's background and renders a 720p preview MP4 of the full take that replaces the raw proxy (cuts are skipped during playback, not cut out). A take cannot start processing until its owner has a background set; the web app checks this before queueing and points to settings. Changing the key threshold reruns key and place for that take only.
 4. **Transcribe.** Extracts audio, sends the chunks to Deepgram in parallel, stitches the words back onto the full take timeline and stores each word with its start and end time.
 
 **Review.** The workspace plays the preview and jumps over active cuts. Toggling a cut or fixing a word only updates rows in Postgres, so it is instant and undoable.
 
-**Export.** Queues an export job: the worker renders 1080p H.264/AAC from the raw take with key, place and the active cuts applied in one ffmpeg pass, and builds the SRT by shifting each word's timing to the trimmed timeline. Both files go to R2 and download through presigned URLs.
+**Export.** Queues an export job: the worker renders 1080p H.264/AAC from the raw take with key, place and the active cuts applied in one ffmpeg pass, and builds the SRT from the words that survive the active cuts, shifted onto the trimmed timeline. A word is dropped when its midpoint falls inside an active cut; a kept word that overlaps a cut boundary is clamped to the kept side of that boundary before shifting. The same rule marks words as cut in the transcript, so the SRT always matches what the transcript shows. Both files go to R2 and download through presigned URLs.
 
 ## Build plan
 
@@ -75,7 +75,7 @@ Take Studio is one TypeScript monorepo with two deployable services: a Next.js w
 ## Setup only Toyin can do (asked for after the scaffold merges)
 
 1. Railway: a project `take-studio` with a `dev` environment, and an invite for the factory GitHub app or a project token.
-2. Cloudflare R2: a private bucket `take-studio-dev` and an API token scoped to it.
+2. Cloudflare R2: a private bucket `take-studio-dev`, an API token scoped to it, and a bucket CORS policy that allows the dev app origin (`APP_URL`) with methods `PUT`, `GET` and `HEAD`, allowed header `Content-Type`, and exposed header `ETag` (multipart upload needs the ETag of each part). Without it, direct browser uploads fail even with valid presigned URLs.
 3. Deepgram: an API key.
 4. Resend: an API key and a verified sending domain (DNS records) for sign in emails.
 5. GitHub repo settings: squash merge only, delete head branches. The repo is currently public; say if it should be private.
