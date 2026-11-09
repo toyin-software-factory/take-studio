@@ -22,7 +22,7 @@ _These are recommendations to keep the build orderly, not requirements. You deci
 | #   | Feature                                    | Phase      | Status      |
 | --- | ------------------------------------------ | ---------- | ----------- |
 | 1   | Stack & architecture                       | Foundation | in-progress |
-| 2   | Coding standards & tooling                 | Foundation | in-progress |
+| 2   | Coding standards & tooling                 | Foundation | done        |
 | 3   | Data model                                 | Foundation | planned     |
 | 4   | Design system & workspace shell            | Foundation | planned     |
 | 5   | Invite only sign in                        | Slice 1    | planned     |
