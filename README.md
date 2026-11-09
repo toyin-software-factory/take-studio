@@ -43,4 +43,4 @@ Railway project `take-studio`, environment `dev`, fed by `main`. Railway Config 
 | `web` | Railpack | `pnpm --filter @take-studio/web build` | `pnpm --filter @take-studio/web start` | `/` | On failure |
 | `worker` | Dockerfile at `apps/worker/Dockerfile` | (image build) | (image `CMD`) | none | Always |
 
-Add a Postgres service and set `DATABASE_URL` (reference the Postgres variable) on both. Set the other variables from `.env.example` as each feature needs them. Moving this to Railway Infrastructure as Code (`.railway/railway.ts`) is a possible follow-up.
+Generate a public domain for `web` (Settings > Networking) and set `APP_URL` to it; `worker` gets none. Add a Postgres service and set `DATABASE_URL` (reference the Postgres variable) on both. Set the other variables from `.env.example` as each feature needs them. Moving this to Railway Infrastructure as Code (`.railway/railway.ts`) is a possible follow-up.
