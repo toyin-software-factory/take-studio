@@ -24,6 +24,7 @@ export async function GET(req: Request, { params }: { params: Promise<{ id: stri
         } catch {}
       };
       const send = (percent: number) => {
+        if (closed) return;
         controller.enqueue(encoder.encode(`data: ${JSON.stringify({ percent })}\n\n`));
         if (percent >= 100) close();
       };
@@ -31,11 +32,21 @@ export async function GET(req: Request, { params }: { params: Promise<{ id: stri
       listener.on("error", close);
       listener.on("notification", (msg) => {
         if (!msg.payload) return;
-        const p = JSON.parse(msg.payload) as JobProgress;
-        if (p.jobId === id) send(p.percent);
+        try {
+          const p = JSON.parse(msg.payload) as JobProgress;
+          if (p.jobId === id) send(p.percent);
+        } catch {
+          // ignore malformed payloads
+        }
       });
-      await listener.query(`listen ${PROGRESS_CHANNEL}`);
+      if (req.signal.aborted) return close();
       req.signal.addEventListener("abort", close);
+      try {
+        await listener.query(`listen ${PROGRESS_CHANNEL}`);
+      } catch (err) {
+        close();
+        throw err;
+      }
 
       // Catch up on anything reported before the LISTEN started.
       const current = await getProgress(getPool(), id).catch(() => null);

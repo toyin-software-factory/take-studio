@@ -1,7 +1,7 @@
 import type { NextConfig } from "next";
 
 const config: NextConfig = {
-  transpilePackages: ["@take-studio/db", "@take-studio/media"],
+  transpilePackages: ["@take-studio/db"],
   serverExternalPackages: ["pg", "pg-boss"],
 };
 

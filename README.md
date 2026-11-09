@@ -8,7 +8,7 @@ Needs Node 22+, pnpm 10 and Docker.
 
 ```sh
 pnpm install
-docker compose up -d          # Postgres on :5432, MinIO on :9000 (console :9001)
+docker compose up -d --wait   # Postgres on :5432, MinIO on :9000 (console :9001)
 cp .env.example .env          # then fill in the values below
 set -a; . ./.env; set +a      # the apps read variables from the shell
 pnpm db:migrate
@@ -36,4 +36,4 @@ curl -N localhost:3000/api/wiring/jobs/$ID/events   # streams percent 0 to 100
 
 ## Deploy
 
-`apps/web/railway.json` and `apps/worker/railway.json` configure the Railway `web` and `worker` services in the `dev` environment. Set `DATABASE_URL` and the other variables from `.env.example` in Railway.
+`apps/web/railway.json` and `apps/worker/railway.json` configure the Railway `web` and `worker` services in the `dev` environment. In each Railway service, set Settings > Config-as-code > Config file path to its file (`/apps/web/railway.json`, `/apps/worker/railway.json`) and keep the root directory at the repo root. Set `DATABASE_URL` and the other variables from `.env.example` in Railway.

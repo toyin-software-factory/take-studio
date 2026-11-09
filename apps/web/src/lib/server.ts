@@ -10,10 +10,15 @@ export function getPool() {
 
 export function getBoss() {
   g.boss ??= (async () => {
-    const boss = new PgBoss(process.env.DATABASE_URL ?? "");
+    const url = process.env.DATABASE_URL;
+    if (!url) throw new Error("DATABASE_URL is not set");
+    const boss = new PgBoss(url);
     boss.on("error", (err) => console.error("pg-boss", err.message));
     await boss.start();
     return boss;
-  })();
+  })().catch((err) => {
+    g.boss = undefined;
+    throw err;
+  });
   return g.boss;
 }

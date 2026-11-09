@@ -25,10 +25,18 @@ async function main() {
   });
   console.log("worker ready");
 
+  let stopping = false;
   const stop = async () => {
-    await boss.stop({ graceful: true, timeout: 30_000 });
-    await pool.end();
-    process.exit(0);
+    if (stopping) return;
+    stopping = true;
+    try {
+      await boss.stop({ graceful: true, timeout: 30_000 });
+      await pool.end();
+      process.exit(0);
+    } catch (err) {
+      console.error(err);
+      process.exit(1);
+    }
   };
   process.on("SIGTERM", stop);
   process.on("SIGINT", stop);
