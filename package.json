@@ -1,0 +1,20 @@
+{
+  "name": "take-studio",
+  "private": true,
+  "packageManager": "pnpm@10.34.9",
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "dev": "pnpm --parallel --filter @take-studio/web --filter @take-studio/worker dev",
+    "lint": "pnpm -r --if-present lint",
+    "typecheck": "pnpm -r --if-present typecheck",
+    "test": "pnpm -r --if-present test",
+    "build": "pnpm -r --if-present build",
+    "db:generate": "pnpm --filter @take-studio/db generate",
+    "db:migrate": "pnpm --filter @take-studio/db migrate"
+  },
+  "devDependencies": {
+    "typescript": "^5.9.3"
+  }
+}

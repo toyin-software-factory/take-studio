@@ -42,8 +42,8 @@ _These are recommendations to keep the build orderly, not requirements. You deci
 Pick the stack, hosting, storage, queue and transcription provider, then scaffold a runnable web app and worker.
 **Done when:** the stack is recorded in a spec Toyin approved, and the scaffold boots locally and deploys to dev.
 - [x] Decide the stack (spec): `/architect stack & architecture`
-- [ ] Scaffold from the decision: `/develop stack & architecture`
-   - [ ] Web app and worker run locally against Postgres and object storage
+- [x] Scaffold from the decision: `/develop stack & architecture`
+   - [x] Web app and worker run locally against Postgres and object storage
    - [ ] Dev deploy answers 200 and CI runs on every PR
 Spec 0001
 
