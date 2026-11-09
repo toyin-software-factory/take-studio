@@ -23,10 +23,10 @@ _These are recommendations to keep the build orderly, not requirements. You deci
 |---|---------|-------|--------|
 | 1 | Stack & architecture | Foundation | in-progress |
 | 2 | Coding standards & tooling | Foundation | planned |
-| 3 | Data model | Foundation | planned |
+| 3 | Data model | Foundation | in-progress |
 | 4 | Design system & workspace shell | Foundation | planned |
-| 5 | Invite only sign in | Slice 1 | planned |
-| 6 | Upload a take to the library | Slice 1 | planned |
+| 5 | Invite only sign in | Slice 1 | in-progress |
+| 6 | Upload a take to the library | Slice 1 | in-progress |
 | 7 | Processing pipeline with real progress | Slice 2 | planned |
 | 8 | Trim: pauses as reversible cuts | Slice 2 | planned |
 | 9 | Preview and timeline | Slice 2 | planned |
@@ -53,10 +53,19 @@ Capture conventions and tooling from the real scaffold so every later PR follows
 - [ ] Capture conventions + tooling choices: `/audit`
 - [ ] Install the tooling: `/develop tooling`
 
-### 3. Data model · needs a decision
+### 3. Data model · in-progress
 People, invites, settings (pause length, background), takes, pipeline runs and steps, cuts, transcript words, exports.
 **Done when:** every later slice (cut toggles, word edits, export) fits without a breaking migration, and every row is scoped to its owner.
-- [ ] Design it (spec): `/architect data model`
+- [x] Design it (spec): `/architect data model`
+- [ ] Build it: `/develop data model` (each slice adds its own tables, as one migration in that slice's PR)
+   - [ ] Slice 1 tables: people and access, takes and uploads, owner scoped helpers (AC-1, AC-2, AC-5, AC-6, AC-7)
+   - [ ] Slice 2 tables: runs, steps, assets, cuts, current run and cut toggle (AC-3, AC-4, AC-5)
+   - [ ] Slice 4 and 5 tables: transcript words with corrections, exports (AC-1, AC-3, AC-7)
+- [ ] Verify it: `/check verify data model`
+- [ ] Test it: `/test data model`
+- [ ] Review it (fresh model): `/check review data model`
+- [ ] Document it: `/document data model`
+spec [0002](../specs/0002-data-model.md)
 
 ### 4. Design system & workspace shell
 Turn `DESIGN.md` into tokens, fonts and base components, and lay out the three panel workspace (library, stage, inspector) fixed to the viewport.
@@ -66,15 +75,34 @@ Turn `DESIGN.md` into tokens, fonts and base components, and lay out the three p
 
 ## Slice 1: Sign in and upload
 
-### 5. Invite only sign in · needs a decision
+### 5. Invite only sign in · in-progress
 Email sign in for invited people only; Toyin can invite and remove people.
 **Done when:** an invited email can sign in, an uninvited one cannot, and each person sees only their own takes.
-- [ ] Design it (spec): `/architect invite only sign in`
+- [x] Design it (spec): `/architect invite only sign in`
+- [ ] Build it: `/develop invite only sign in`
+   - [ ] Magic link sign in gated by the invite list, with the request guard on every route (AC-1, AC-2, AC-3, AC-4)
+   - [ ] Sign in, check email and error pages, sign out, rate limit (AC-9, AC-10, AC-11)
+   - [ ] People page: invite, resend, remove, owner protected (AC-5, AC-6, AC-7, AC-8)
+- [ ] Verify it: `/check verify invite only sign in`
+- [ ] Test it: `/test invite only sign in`
+- [ ] Review it (fresh model): `/check review invite only sign in`
+- [ ] Document it: `/document invite only sign in`
+spec [0003](../specs/0003-invite-only-sign-in.md)
 
-### 6. Upload a take to the library · needs a decision
+### 6. Upload a take to the library · in-progress
 Upload a raw take of up to 30 minutes straight to storage, resuming after a dropped connection, and list it in the library.
 **Done when:** a 30 minute take uploads with a real percentage, survives a dropped connection, and appears as a 32px library row with duration and state; a failed upload shows "Failed" and a next step.
-- [ ] Design it (spec): `/architect upload a take`
+- [x] Design it (spec): `/architect upload a take`
+- [ ] Build it: `/develop upload a take`
+   - [ ] Thin path: create, sign parts, complete, worker probe writes the duration (AC-1, AC-3, AC-8, AC-9)
+   - [ ] Library panel: rows in every state, drop zone, queue, empty state, pagination (AC-1, AC-4, AC-11)
+   - [ ] Robust uploader: parallel parts, retries, offline pause, resume after reload (AC-5, AC-6, AC-7)
+   - [ ] Cancel, remove failed takes, validation toasts, expiry sweep, 30 minute dev run (AC-2, AC-9, AC-10, AC-12)
+- [ ] Verify it: `/check verify upload a take`
+- [ ] Test it: `/test upload a take`
+- [ ] Review it (fresh model): `/check review upload a take`
+- [ ] Document it: `/document upload a take`
+spec [0004](../specs/0004-upload-take.md)
 
 ## Slice 2: Trim, preview, timeline
 
