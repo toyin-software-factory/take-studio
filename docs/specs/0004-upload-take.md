@@ -127,7 +127,7 @@ Percentages are whole numbers and never go backwards. The row's state is also ex
 | Endpoint | Method | Key inputs | Key outputs | Auth | Key errors |
 |---|---|---|---|---|---|
 | `/api/takes` | GET | `cursor?` (opaque), `limit?` (max 50) | `{ takes: [{ id, title, durationMs, state, bytesUploaded, sizeBytes, failureCode, fingerprint }], nextCursor }`; `state` is one of `interrupted`, `checking`, `uploaded`, `failed` in Slice 1 (the browser shows `interrupted` as `Uploading` or `Paused` when this tab is sending it); `failureCode` is `uploads.failure_code`, else `takes.failure_code` | person | 401 |
-| `/api/takes` | POST | `filename: string`, `sizeBytes: number`, `contentType: string`, `lastModified: number`, `durationMs?: number` | `{ takeId, partSize, partCount }`, 201 | person | 400 wrong type, 413 over 25 GB, 422 over 30 min, 502 R2 error |
+| `/api/takes` | POST | `filename: string`, `sizeBytes: number`, `contentType: string`, `lastModified: number`, `sample: string` (64 lowercase hex chars, the SHA-256 described in the data model sketch), `durationMs?: number`; the server builds `takes.fingerprint` from these | `{ takeId, partSize, partCount }`, 201 | person | 400 wrong type or bad `sample`, 413 over 25 GB, 422 over 30 min, 502 R2 error |
 | `/api/takes/:id/upload/parts` | POST | `partNumbers: number[]` (1 to 20 of them) | `{ urls: { [partNumber]: url } }` | owner of take | 404, 409 not in progress, 400 bad part numbers |
 | `/api/takes/:id/upload/parts` | GET | none | `{ parts: [{ partNumber, size }] }` from `ListParts` | owner of take | 404, 409 not in progress |
 | `/api/takes/:id/upload` | PATCH | `bytesUploaded: number` | 204 | owner of take | 404, 409 not in progress |
