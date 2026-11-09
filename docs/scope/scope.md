@@ -62,8 +62,6 @@ People, invites, settings (pause length, background), takes, pipeline runs and s
    - [ ] Slice 2 tables: runs, steps, assets, cuts, current run and cut toggle (AC-3, AC-4, AC-5)
    - [ ] Slice 4 and 5 tables: transcript words with corrections, exports (AC-1, AC-3, AC-7)
 - [ ] Verify it: `/check verify data model`
-- [ ] Test it: `/test data model`
-- [ ] Review it (fresh model): `/check review data model`
 - [ ] Document it: `/document data model`
 spec [0002](../specs/0002-data-model.md)
 
@@ -84,8 +82,6 @@ Email sign in for invited people only; Toyin can invite and remove people.
    - [ ] Sign in, check email and error pages, sign out, rate limit (AC-9, AC-10, AC-11)
    - [ ] People page: invite, resend, remove, owner protected (AC-5, AC-6, AC-7, AC-8)
 - [ ] Verify it: `/check verify invite only sign in`
-- [ ] Test it: `/test invite only sign in`
-- [ ] Review it (fresh model): `/check review invite only sign in`
 - [ ] Document it: `/document invite only sign in`
 spec [0003](../specs/0003-invite-only-sign-in.md)
 
@@ -99,8 +95,6 @@ Upload a raw take of up to 30 minutes straight to storage, resuming after a drop
    - [ ] Robust uploader: parallel parts, retries, offline pause, resume after reload (AC-5, AC-6, AC-7)
    - [ ] Cancel, remove failed takes, validation toasts, expiry sweep, 30 minute dev run (AC-2, AC-9, AC-10, AC-12)
 - [ ] Verify it: `/check verify upload a take`
-- [ ] Test it: `/test upload a take`
-- [ ] Review it (fresh model): `/check review upload a take`
 - [ ] Document it: `/document upload a take`
 spec [0004](../specs/0004-upload-take.md)
 

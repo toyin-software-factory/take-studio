@@ -1,6 +1,6 @@
 # 0001 Stack and architecture
 
-**Status**: Proposed
+**Status**: Accepted (approved by Toyin 2026-11-09)
 **Date**: 2026-11-09
 **Scope feature**: 1. Stack & architecture (`docs/scope/scope.md`)
 
