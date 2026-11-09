@@ -4,6 +4,7 @@ A web app where you upload a raw green screen take and get back a YouTube ready 
 
 **Build approach:** Tracer Bullet (each slice works end to end, from storage and the worker through to the workspace, before the next one starts).
 **Workflow:** GA (after `/develop`: `/check verify`, then `/document` and `/sync`; tests only where they earn their keep, never for markup, styling or trivial code). CodeRabbit on GitHub is the code review.
+**Design references:** every UI spec (`/architect` for a page or component) and every frontend PR gathers real screens and flows with the Mobbin MCP and lists them, with links, in a "References" section. `DESIGN.md` still wins on look and behaviour; Mobbin informs layout and interaction patterns.
 
 _These are recommendations to keep the build orderly, not requirements. You decide when a feature is `done`._
 
@@ -60,6 +61,7 @@ People, invites, settings (pause length, background), takes, pipeline runs and s
 ### 4. Design system & workspace shell
 Turn `DESIGN.md` into tokens, fonts and base components, and lay out the three panel workspace (library, stage, inspector) fixed to the viewport.
 **Done when:** tokens match `DESIGN.md` exactly, base components (buttons, input, kbd, chip, dialog, toast, tooltip) handle focus with the Verdigris ring, and the empty workspace renders dark only with panels scrolling internally.
+**Starting Mobbin references:** [Jitter editor](https://mobbin.com/screens/17629e26-aaab-4170-b7c7-3374a5e0330c) (left panel, stage with timeline beneath, right inspector), [Gemini Notebook](https://mobbin.com/screens/b97d0037-12f3-4df0-a942-2093bbf7d793) (three panels with a video player in the right panel), [Higgsfield](https://mobbin.com/screens/4f4c12e7-583f-43c0-a034-cebfde8b7d49) (dark video workspace with a dominant centre stage).
 - [ ] Build it: `/develop design system & workspace shell`
 
 ## Slice 1: Sign in and upload
