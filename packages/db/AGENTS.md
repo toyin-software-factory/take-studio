@@ -29,7 +29,7 @@ pnpm --filter @take-studio/db typecheck
 
 ## Conventions
 
-- Change the schema in `src/schema.ts`, then run `pnpm -w db:generate` and commit the SQL and journal together. Never hand edit an applied migration.
+- Change the schema in `src/schema.ts`, then run `pnpm -w db:generate` and commit everything it writes under `drizzle/` together: the SQL, `meta/_journal.json` and the `meta/*_snapshot.json` files (without the snapshots the next generate diffs against an empty schema). Never hand edit an applied migration.
 - Every owned table carries the owner's id, and every query filters by it.
 - Root `## Rules` apply.
 
