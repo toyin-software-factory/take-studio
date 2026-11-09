@@ -1,0 +1,25 @@
+# Local stand-ins for Railway Postgres and Cloudflare R2. Dev only.
+services:
+  postgres:
+    image: postgres:17
+    environment:
+      POSTGRES_USER: takestudio
+      POSTGRES_PASSWORD: takestudio
+      POSTGRES_DB: takestudio
+    ports: ["5432:5432"]
+    volumes: [pgdata:/var/lib/postgresql/data]
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U takestudio"]
+      interval: 3s
+      retries: 20
+  minio:
+    image: minio/minio
+    command: server /data --console-address ":9001"
+    environment:
+      MINIO_ROOT_USER: takestudio
+      MINIO_ROOT_PASSWORD: takestudio-secret
+    ports: ["9000:9000", "9001:9001"]
+    volumes: [miniodata:/data]
+volumes:
+  pgdata:
+  miniodata:
