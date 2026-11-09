@@ -36,4 +36,11 @@ curl -N localhost:3000/api/wiring/jobs/$ID/events   # streams percent 0 to 100
 
 ## Deploy
 
-`apps/web/railway.json` and `apps/worker/railway.json` configure the Railway `web` and `worker` services in the `dev` environment. In each Railway service, set Settings > Config-as-code > Config file path to its file (`/apps/web/railway.json`, `/apps/worker/railway.json`) and keep the root directory at the repo root. Set `DATABASE_URL` and the other variables from `.env.example` in Railway.
+Railway project `take-studio`, environment `dev`, fed by `main`. Railway Config as Code is closed to new services (existing files stop being read on 2026-12-01), so the two services are set up in the dashboard. Both use the repo root as the root directory.
+
+| Service | Builder | Build command | Start command | Healthcheck | Restart |
+|---|---|---|---|---|---|
+| `web` | Railpack | `pnpm --filter @take-studio/web build` | `pnpm --filter @take-studio/web start` | `/` | On failure |
+| `worker` | Dockerfile at `apps/worker/Dockerfile` | (image build) | (image `CMD`) | none | Always |
+
+Add a Postgres service and set `DATABASE_URL` (reference the Postgres variable) on both. Set the other variables from `.env.example` as each feature needs them. Moving this to Railway Infrastructure as Code (`.railway/railway.ts`) is a possible follow-up.

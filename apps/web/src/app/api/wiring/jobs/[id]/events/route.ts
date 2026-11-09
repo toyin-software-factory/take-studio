@@ -15,9 +15,14 @@ export async function GET(req: Request, { params }: { params: Promise<{ id: stri
   const stream = new ReadableStream({
     async start(controller) {
       let closed = false;
+      // Comment lines keep proxies from closing the stream while a job waits in the queue.
+      const heartbeat = setInterval(() => {
+        if (!closed) controller.enqueue(encoder.encode(": keep-alive\n\n"));
+      }, 15_000);
       close = () => {
         if (closed) return;
         closed = true;
+        clearInterval(heartbeat);
         listener.end().catch(() => {});
         try {
           controller.close();
