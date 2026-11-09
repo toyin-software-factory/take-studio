@@ -28,6 +28,7 @@ export function ErrorToast({
     <RadixToast.Root
       open={open}
       onOpenChange={onOpenChange}
+      duration={15000}
       className="animate-fade-in rounded-md border border-border bg-raised p-md text-body-md shadow-float"
     >
       <RadixToast.Title className="text-label-md text-error">

@@ -1,4 +1,4 @@
-import type { InputHTMLAttributes } from "react";
+import { useId, type InputHTMLAttributes } from "react";
 import { cx } from "@/lib/cx";
 
 export function Input({
@@ -7,11 +7,13 @@ export function Input({
   className,
   ...props
 }: InputHTMLAttributes<HTMLInputElement> & { error?: string }) {
-  const messageId = error && id ? `${id}-error` : undefined;
+  const generatedId = useId();
+  const inputId = id ?? generatedId;
+  const messageId = error ? `${inputId}-error` : undefined;
   return (
     <div className="flex flex-col gap-xs">
       <input
-        id={id}
+        id={inputId}
         aria-invalid={error ? true : undefined}
         aria-describedby={messageId}
         className={cx(
