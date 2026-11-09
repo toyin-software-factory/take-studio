@@ -1,5 +1,22 @@
 import type { Metadata } from "next";
+import { Archivo, JetBrains_Mono } from "next/font/google";
+import { ToastProvider } from "@/components/ui/toast";
+import { TooltipProvider } from "@/components/ui/tooltip";
 import "./globals.css";
+
+const archivo = Archivo({
+  subsets: ["latin"],
+  weight: ["400", "700"],
+  variable: "--font-archivo",
+  display: "swap",
+});
+
+const jetbrainsMono = JetBrains_Mono({
+  subsets: ["latin"],
+  weight: ["400"],
+  variable: "--font-jetbrains-mono",
+  display: "swap",
+});
 
 export const metadata: Metadata = {
   title: "Take Studio",
@@ -13,8 +30,12 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en">
-      <body>{children}</body>
+    <html lang="en" className={`${archivo.variable} ${jetbrainsMono.variable}`}>
+      <body>
+        <TooltipProvider>
+          <ToastProvider>{children}</ToastProvider>
+        </TooltipProvider>
+      </body>
     </html>
   );
 }
