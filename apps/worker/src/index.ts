@@ -1,5 +1,10 @@
 import PgBoss from "pg-boss";
-import { NOOP_QUEUE, createPool, ensureProgressTable, reportProgress } from "@take-studio/db";
+import {
+  NOOP_QUEUE,
+  createPool,
+  ensureProgressTable,
+  reportProgress,
+} from "@take-studio/db";
 
 const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
 

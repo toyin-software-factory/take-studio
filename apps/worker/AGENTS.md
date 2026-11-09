@@ -10,10 +10,10 @@ Node 22, ESM, run with `tsx` (no compile step at runtime). pg-boss imported dire
 
 ## Key files
 
-| File | Owns |
-|---|---|
+| File           | Owns                                                                 |
+| -------------- | -------------------------------------------------------------------- |
 | `src/index.ts` | Startup, queue registration, graceful shutdown on SIGTERM and SIGINT |
-| `Dockerfile` | Production image with ffmpeg 7 (build from the repo root) |
+| `Dockerfile`   | Production image with ffmpeg 7 (build from the repo root)            |
 
 ## Commands
 

@@ -21,23 +21,23 @@ Take Studio is one TypeScript monorepo with two deployable services: a Next.js w
 
 ## Decision
 
-| Concern | Pick | Runner up |
-|---|---|---|
-| Language | TypeScript (strict) everywhere | |
-| Repo layout | pnpm workspace: `apps/web`, `apps/worker`, `packages/db`, `packages/media` | |
-| Web app | Next.js (App Router) with React, server routes for the API | Remix |
-| Styling | Tailwind CSS with the `DESIGN.md` tokens as CSS variables; Radix primitives for dialog, tooltip and menus; Archivo and JetBrains Mono through `next/font` | CSS Modules |
-| Database | Postgres, accessed with Drizzle ORM and its migrations | Prisma |
-| Job queue | pg-boss on the same Postgres (no Redis to run) | BullMQ with Redis |
-| Worker | Node service in a Docker image with ffmpeg 7, one job at a time | |
-| Object storage | Cloudflare R2 (S3 compatible), private bucket, presigned URLs only | AWS S3 |
-| Uploads | Browser direct to R2 with S3 multipart upload (64 MB parts); finished parts are remembered so an upload resumes where it stopped | tus server |
-| Transcription | Deepgram (Nova model, prerecorded, word level timestamps) | AssemblyAI |
-| Auth | Auth.js with email magic links sent through Resend; an invite list gates who may sign in | Clerk |
-| Live progress | Worker writes step progress to Postgres and fires `NOTIFY`; the web app streams it to the browser over Server Sent Events | Polling every second |
-| Hosting | Railway: `web`, `worker` and Postgres services, with a `dev` environment fed by `main` | Fly.io |
-| CI | GitHub Actions: lint, typecheck, unit tests, build; Lighthouse CI per the factory defaults | |
-| Tests | Vitest for media and data logic (cut maths, SRT timing, progress parsing); Playwright smoke for the main review flow | |
+| Concern        | Pick                                                                                                                                                      | Runner up            |
+| -------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------- |
+| Language       | TypeScript (strict) everywhere                                                                                                                            |                      |
+| Repo layout    | pnpm workspace: `apps/web`, `apps/worker`, `packages/db`, `packages/media`                                                                                |                      |
+| Web app        | Next.js (App Router) with React, server routes for the API                                                                                                | Remix                |
+| Styling        | Tailwind CSS with the `DESIGN.md` tokens as CSS variables; Radix primitives for dialog, tooltip and menus; Archivo and JetBrains Mono through `next/font` | CSS Modules          |
+| Database       | Postgres, accessed with Drizzle ORM and its migrations                                                                                                    | Prisma               |
+| Job queue      | pg-boss on the same Postgres (no Redis to run)                                                                                                            | BullMQ with Redis    |
+| Worker         | Node service in a Docker image with ffmpeg 7, one job at a time                                                                                           |                      |
+| Object storage | Cloudflare R2 (S3 compatible), private bucket, presigned URLs only                                                                                        | AWS S3               |
+| Uploads        | Browser direct to R2 with S3 multipart upload (64 MB parts); finished parts are remembered so an upload resumes where it stopped                          | tus server           |
+| Transcription  | Deepgram (Nova model, prerecorded, word level timestamps)                                                                                                 | AssemblyAI           |
+| Auth           | Auth.js with email magic links sent through Resend; an invite list gates who may sign in                                                                  | Clerk                |
+| Live progress  | Worker writes step progress to Postgres and fires `NOTIFY`; the web app streams it to the browser over Server Sent Events                                 | Polling every second |
+| Hosting        | Railway: `web`, `worker` and Postgres services, with a `dev` environment fed by `main`                                                                    | Fly.io               |
+| CI             | GitHub Actions: lint, typecheck, unit tests, build; Lighthouse CI per the factory defaults                                                                |                      |
+| Tests          | Vitest for media and data logic (cut maths, SRT timing, progress parsing); Playwright smoke for the main review flow                                      |                      |
 
 ## How the pieces fit
 

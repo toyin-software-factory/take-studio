@@ -10,6 +10,7 @@ export async function POST() {
   await ensureProgressTable(getPool());
   await boss.createQueue(NOOP_QUEUE);
   const id = await boss.send(NOOP_QUEUE, {});
-  if (!id) return NextResponse.json({ error: "enqueue failed" }, { status: 500 });
+  if (!id)
+    return NextResponse.json({ error: "enqueue failed" }, { status: 500 });
   return NextResponse.json({ id }, { status: 202 });
 }

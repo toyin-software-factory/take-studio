@@ -15,7 +15,11 @@ export async function ensureProgressTable(pool: pg.Pool) {
   );
 }
 
-export async function reportProgress(pool: pg.Pool, jobId: string, percent: number) {
+export async function reportProgress(
+  pool: pg.Pool,
+  jobId: string,
+  percent: number,
+) {
   await pool.query(
     `insert into wiring_progress (job_id, percent) values ($1, $2)
      on conflict (job_id) do update set percent = excluded.percent, updated_at = now()`,
@@ -27,7 +31,10 @@ export async function reportProgress(pool: pg.Pool, jobId: string, percent: numb
   ]);
 }
 
-export async function getProgress(pool: pg.Pool, jobId: string): Promise<number | null> {
+export async function getProgress(
+  pool: pg.Pool,
+  jobId: string,
+): Promise<number | null> {
   const { rows } = await pool.query<{ percent: number }>(
     "select percent from wiring_progress where job_id = $1",
     [jobId],

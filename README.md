@@ -38,9 +38,9 @@ curl -N localhost:3000/api/wiring/jobs/$ID/events   # streams percent 0 to 100
 
 Railway project `take-studio`, environment `dev`, fed by `main`. Railway Config as Code is closed to new services (existing files stop being read on 2026-12-01), so the two services are set up in the dashboard. Both use the repo root as the root directory.
 
-| Service | Builder | Build command | Start command | Healthcheck | Restart |
-|---|---|---|---|---|---|
-| `web` | Railpack | `pnpm --filter @take-studio/web build` | `pnpm --filter @take-studio/web start` | `/` | On failure |
-| `worker` | Dockerfile at `apps/worker/Dockerfile` | (image build) | (image `CMD`) | none | Always |
+| Service  | Builder                                | Build command                          | Start command                          | Healthcheck | Restart    |
+| -------- | -------------------------------------- | -------------------------------------- | -------------------------------------- | ----------- | ---------- |
+| `web`    | Railpack                               | `pnpm --filter @take-studio/web build` | `pnpm --filter @take-studio/web start` | `/`         | On failure |
+| `worker` | Dockerfile at `apps/worker/Dockerfile` | (image build)                          | (image `CMD`)                          | none        | Always     |
 
 Generate a public domain for `web` (Settings > Networking) and set `APP_URL` to it; `worker` gets none. Add a Postgres service and set `DATABASE_URL` (reference the Postgres variable) on both. Set the other variables from `.env.example` as each feature needs them. Moving this to Railway Infrastructure as Code (`.railway/railway.ts`) is a possible follow-up.
