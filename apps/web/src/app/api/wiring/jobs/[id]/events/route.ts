@@ -1,14 +1,23 @@
 import pg from "pg";
-import { PROGRESS_CHANNEL, getProgress, type JobProgress } from "@take-studio/db";
+import {
+  PROGRESS_CHANNEL,
+  getProgress,
+  type JobProgress,
+} from "@take-studio/db";
 import { getPool } from "@/lib/server";
 
 export const dynamic = "force-dynamic";
 
 // Streams a job's progress as Server Sent Events, driven by Postgres NOTIFY.
-export async function GET(req: Request, { params }: { params: Promise<{ id: string }> }) {
+export async function GET(
+  req: Request,
+  { params }: { params: Promise<{ id: string }> },
+) {
   const { id } = await params;
   const encoder = new TextEncoder();
-  const listener = new pg.Client({ connectionString: process.env.DATABASE_URL });
+  const listener = new pg.Client({
+    connectionString: process.env.DATABASE_URL,
+  });
   await listener.connect();
 
   let close = () => {};
@@ -30,7 +39,9 @@ export async function GET(req: Request, { params }: { params: Promise<{ id: stri
       };
       const send = (percent: number) => {
         if (closed) return;
-        controller.enqueue(encoder.encode(`data: ${JSON.stringify({ percent })}\n\n`));
+        controller.enqueue(
+          encoder.encode(`data: ${JSON.stringify({ percent })}\n\n`),
+        );
         if (percent >= 100) close();
       };
 

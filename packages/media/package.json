@@ -2,7 +2,15 @@
   "name": "@take-studio/media",
   "private": true,
   "type": "module",
-  "exports": { ".": "./src/index.ts" },
-  "scripts": { "typecheck": "tsc -p ." },
-  "devDependencies": {}
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "typecheck": "tsc -p .",
+    "lint": "eslint src"
+  },
+  "devDependencies": {
+    "eslint": "^9.0.0",
+    "typescript-eslint": "^8.0.0"
+  }
 }

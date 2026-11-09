@@ -23,7 +23,8 @@ docker compose up -d --wait     # local Postgres :5432 and MinIO :9000
 set -a; . ./.env; set +a        # apps read env from the shell
 pnpm db:migrate                 # apply Drizzle migrations
 pnpm dev                        # web on :3000 plus worker
-pnpm lint && pnpm typecheck && pnpm test && pnpm build   # what CI runs
+pnpm format:check && pnpm lint && pnpm typecheck && pnpm test && pnpm build   # what CI runs
+pnpm format                                                            # write Prettier fixes
 ```
 
 ## Specs
@@ -48,7 +49,7 @@ Stored in `docs/specs/`. Format: `docs/specs/NNNN-title.md`.
 - Lint: ESLint 9 flat config in every workspace (`next/core-web-vitals` in web, `typescript-eslint` recommended elsewhere). Format: Prettier at the root, checked in CI.
 - Before commit: lint and format on staged files. Typecheck runs in CI.
 - CI: GitHub Actions on every PR (lint, typecheck, test, build) plus Lighthouse (3 runs; performance warns, accessibility, best practices and SEO fail).
-- Installing what is missing (Prettier, the pre commit hook, lint in `packages/media`) is scope feature 2, `/develop tooling`.
+- Prettier, the pre commit hook (husky + lint-staged) and lint in `packages/media` are installed (scope feature 2).
 
 ## Git
 

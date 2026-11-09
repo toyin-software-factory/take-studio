@@ -282,7 +282,7 @@ The governing rule is that **the footage is the colour**. A person judging a key
 
 The brand supplied five colours. A palette this evenly spread across teal and orange is easy to let become decoration, so each colour is assigned a single job, and none is allowed to do another's.
 
-The ground is not any of the five. It is a ramp derived from **Charcoal Blue**'s own hue and darkened well past it, because a grading surround must be near-black and neutral. Charcoal Blue itself sits one step up that ramp as the colour of *selection and structure*. Neutrals are tinted toward that hue, so the room reads as a deliberate teal-slate rather than a stock grey or a blue-navy.
+The ground is not any of the five. It is a ramp derived from **Charcoal Blue**'s own hue and darkened well past it, because a grading surround must be near-black and neutral. Charcoal Blue itself sits one step up that ramp as the colour of _selection and structure_. Neutrals are tinted toward that hue, so the room reads as a deliberate teal-slate rather than a stock grey or a blue-navy.
 
 - **Primary (#264653):** Charcoal Blue — the studio wall. Selected take, timeline clips, anything that is "chosen" without being "live". Never a text colour.
 - **Secondary (#a9bbbd):** Pale slate — metadata, durations, captions, panel legends. Readable muted text on every surface, including the selected row.

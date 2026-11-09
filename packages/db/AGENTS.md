@@ -10,13 +10,13 @@ Drizzle ORM 0.44 and drizzle-kit 0.31 on `pg`. Consumed as TypeScript source (`e
 
 ## Key files
 
-| File | Owns |
-|---|---|
-| `src/schema.ts` | Drizzle tables (empty until spec 0002 lands) |
-| `src/index.ts` | `createPool`, `createDb`, schema and helper re exports |
-| `src/progress.ts` | Wiring proof progress table, `NOTIFY` channel and queue name |
-| `drizzle/` | Generated SQL migrations and journal |
-| `drizzle.config.ts` | drizzle-kit config, reads `DATABASE_URL` |
+| File                | Owns                                                         |
+| ------------------- | ------------------------------------------------------------ |
+| `src/schema.ts`     | Drizzle tables (empty until spec 0002 lands)                 |
+| `src/index.ts`      | `createPool`, `createDb`, schema and helper re exports       |
+| `src/progress.ts`   | Wiring proof progress table, `NOTIFY` channel and queue name |
+| `drizzle/`          | Generated SQL migrations and journal                         |
+| `drizzle.config.ts` | drizzle-kit config, reads `DATABASE_URL`                     |
 
 ## Commands
 

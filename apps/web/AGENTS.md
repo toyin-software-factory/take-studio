@@ -10,12 +10,12 @@ Next.js 15 (App Router), React 19, Tailwind CSS 4 (`@tailwindcss/postcss`), pg-b
 
 ## Key files
 
-| File | Owns |
-|---|---|
-| `src/app/layout.tsx`, `src/app/page.tsx` | Root layout and the workspace page |
-| `src/app/globals.css` | Tailwind entry; `DESIGN.md` tokens become CSS variables here |
-| `src/lib/server.ts` | Process wide Postgres pool and pg-boss instance, cached on `globalThis` |
-| `src/app/api/wiring/jobs/` | Wiring proof: enqueue a no op job and stream its progress (SSE) |
+| File                                     | Owns                                                                    |
+| ---------------------------------------- | ----------------------------------------------------------------------- |
+| `src/app/layout.tsx`, `src/app/page.tsx` | Root layout and the workspace page                                      |
+| `src/app/globals.css`                    | Tailwind entry; `DESIGN.md` tokens become CSS variables here            |
+| `src/lib/server.ts`                      | Process wide Postgres pool and pg-boss instance, cached on `globalThis` |
+| `src/app/api/wiring/jobs/`               | Wiring proof: enqueue a no op job and stream its progress (SSE)         |
 
 ## Commands
 
