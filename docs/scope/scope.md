@@ -102,7 +102,7 @@ spec [0004](../specs/0004-upload-take.md)
 
 ### 7. Processing pipeline with real progress · needs a decision
 A queue runs trim, key, place, transcribe in that fixed order on the worker and reports each step's progress.
-**Done when:** every step chip shows pending, running with a determinate percentage, or done with a check and duration; a failed step says why and can be retried; no spinner anywhere. Until Slice 3 ships, key and place pass the raw take through (marked as skipped on their chips) and the preview is a 720p proxy of the raw take, so no background is needed in this slice.
+**Done when:** every step chip shows pending, running with a determinate percentage, or done with a check and duration; a failed step says why and can be retried; no spinner anywhere. Until Slice 3 ships, key and place pass the raw take through (marked as skipped on their chips) and the preview is a 720p proxy of the raw take, so no background is needed in this slice. Transcribe is likewise skipped until Slice 4 ships the transcript.
 - [ ] Design it (spec): `/architect processing pipeline`
 
 ### 8. Trim: pauses as reversible cuts · needs a decision

@@ -23,12 +23,12 @@ The open questions are how the invite list gates sign in, how the first owner ex
 
 **Acceptance criteria**:
 - **AC-1**: An invited email (or `OWNER_EMAIL`) entered on `/sign-in` receives an email "Sign in to Take Studio" with a link that signs them in and lands on the workspace. The link works once and expires after 15 minutes.
-- **AC-2**: An email that is not invited receives no email. The page shows the same "Check your email" screen as for an invited address, and the attempt is logged as `sign_in.refused`.
+- **AC-2**: An email that is not invited receives no email. The response is the same as for an invited address (same redirect, same status, same page), both from the sign in form and from a direct request to `/api/auth/signin/resend`, and the attempt is logged as `sign_in.refused`.
 - **AC-3**: Every page except the sign in pages, and every route under `/api` except `/api/auth/*` and `/api/health`, refuses a request without a valid session: pages redirect to `/sign-in?next=<path>`, API routes answer 401.
 - **AC-4**: A signed in person can read and change only their own takes, settings and background. Asking for another person's take by id answers 404.
 - **AC-5**: The owner sees a People page at `/settings/people` listing every invited email with its state (`Invited` or `Active`, with the date of first sign in) and can invite an email and remove a person. Anyone else gets 404 for that page and its API.
 - **AC-6**: Inviting an email adds it to the list and sends a short invite email with a link to `/sign-in`. Inviting an email that is already invited only resends that email, at most once a minute.
-- **AC-7**: Removing a person (after a confirm dialog) deletes their invite and all their sessions in one transaction; their next request is signed out, and they cannot get a new link. Their takes and settings stay; inviting them again restores access to the same library.
+- **AC-7**: Removing a person (after a confirm dialog) deletes their invite, all their sessions and every outstanding sign in link for their email (`verification_tokens` rows with that identifier) in one transaction; their next request is signed out, they cannot get a new link, and a link sent before removal stays dead even if they are invited again. Their takes and settings stay; inviting them again restores access to the same library.
 - **AC-8**: The owner cannot be removed and does not appear as removable.
 - **AC-9**: Sign in link requests are limited to 3 per email and 10 per IP address in any 10 minutes; past the limit the page says "Too many attempts. Try again in a few minutes." and no email is sent.
 - **AC-10**: A used or expired link, or a link for someone removed since it was sent, shows "This link has expired or is no longer valid" with a button to send a new one. Opening the link in the email first shows a page with a "Sign in" button, so mail scanners that open links do not use it up.
@@ -91,7 +91,7 @@ Seeding the owner from `OWNER_EMAIL` avoids a setup script or a first user wins 
 | Path | Shows |
 |---|---|
 | `/sign-in` | App name, one email input, primary button "Send sign in link". Inline errors: invalid email, rate limited (AC-9). Signed in visitors are redirected to `/`. |
-| `/sign-in/check-email` | "Check your email", the address in mono, "The link works for 15 minutes." A "Send again" button enabled after 60 s with a mono countdown, and "Use a different email" back to `/sign-in`. Same screen for invited and uninvited (AC-2). |
+| `/sign-in/check-email` | "Check your email", the address in mono (read from a short lived `httpOnly` cookie the sign in action sets before calling Auth.js, never from the URL; omitted when absent), "The link works for 15 minutes." A "Send again" button enabled after 60 s with a mono countdown, and "Use a different email" back to `/sign-in`. Same screen for invited and uninvited (AC-2). |
 | `/sign-in/confirm` | Where the email link points: "Sign in to Take Studio as name@example.com" and one "Sign in" button that goes to the Auth.js callback URL carried in the query string (only accepted when its origin is `APP_URL` and its path is `/api/auth/callback/resend`). Opening this page does nothing on its own (AC-10). |
 | `/sign-in/error` | For `Verification` and `AccessDenied` errors: "This link has expired or is no longer valid" and "Send a new link" (AC-10). Other errors: "Sign in failed. Try again." |
 | `/settings/people` (owner only) | Ruled list of 32 px rows. The first row is always the owner (`OWNER_EMAIL`, labelled `Owner`, no actions); then each invite: email, state (`Invited` or `Active since 9 Nov`), "Resend" on invited rows, "Remove" on every row except the owner's. Above it an email input and "Invite" button. Remove opens a dialog: "Remove name@example.com? They are signed out now and can't sign in again. Their takes are kept." with a Burnt Peach "Remove" and "Cancel". |
@@ -109,13 +109,15 @@ Seeding the owner from `OWNER_EMAIL` avoids a setup script or a first user wins 
 
 The sign in form posts to a server action that validates the email and calls Auth.js `signIn("resend", { email, redirectTo: next })`. The rate limit is not in the action: it is in the `signIn` callback, so posting straight to `/api/auth/signin/resend` is limited too.
 
-**Request guard**: Next.js middleware (or `proxy.ts` on Next 16) only checks that the session cookie is present and redirects or answers 401 when it is not (AC-3); it does not touch the database. Because middleware alone is not a security boundary, every server component, route handler and server action that touches data also calls `requireUser()` (returns the session user or throws a 401 or redirect) and, for owner routes, `requireOwner()` (404 for everyone else). Data reads then go through the spec 0002 owner scoped helpers (AC-4).
+**Request guard**: Next.js middleware (or `proxy.ts` on Next 16) only checks that the session cookie is present and redirects or answers 401 when it is not (AC-3); it does not touch the database. Because middleware alone is not a security boundary, every server component, route handler and server action that touches data also calls `requireUser()` and, for owner routes, `requireOwner()` (404 for everyone else). Data reads then go through the spec 0002 owner scoped helpers (AC-4).
+
+`requireUser()` resolves the session with `auth()` and then checks that the user is still allowed: their email equals `normalize(OWNER_EMAIL)` or has an `invites` row (one indexed lookup). When they are not, it deletes all of that user's sessions and answers as signed out (401 or redirect). This is the enforcement point for access, not the removal transaction alone: a session Auth.js creates in the gap between the link use invite check and a concurrent removal, or a former owner's session after `OWNER_EMAIL` changes, is refused and deleted on its first request.
 
 **`signIn` callback** (in `apps/web/auth.ts`). Auth.js calls it twice: when a link is requested (`email.verificationRequest === true`) and when the link is used.
 1. Both phases: normalise the email (trim, lowercase); allowed when it equals `normalize(OWNER_EMAIL)` or a row exists in `invites`.
 2. Request phase, before the invite check: record a `rate_limit_hits` row for `email:<email>` and `ip:<ip>`; when either is over its limit return `/sign-in?error=rate_limited` (AC-9). Every attempt counts, invited or not, so the limit message reveals nothing.
-3. Request phase, refused: write `sign_in.refused` and return `/sign-in/check-email?email=…`, the same page as success (AC-2).
-4. Link use phase, refused (removed since the link was sent): return `false`, which lands on `/sign-in/error` with `AccessDenied` (AC-10).
+3. Request phase, refused: write `sign_in.refused` and return the exact URL Auth.js redirects an allowed request to. Auth.js is configured with `pages.verifyRequest = "/sign-in/check-email"`, so allowed requests land there too; the build pins the Auth.js version, reads the allowed redirect (path and query) from it, and returns the same string, so the two responses cannot be told apart (AC-2).
+4. Link use phase, refused (removed since the link was sent): return `false`, which lands on `/sign-in/error` with `AccessDenied` (AC-10). A session created anyway in a race with removal is caught by `requireUser()` (see *Request guard*).
 5. `events.signIn` (after a successful link use) writes `sign_in.succeeded` and sets `invites.accepted_at` when it is null. Settings rows are created on first read by `getSettings` (spec 0002), not in an event.
 
 The Resend provider's `sendVerificationRequest` is ours: it builds the email with the link pointing at `/sign-in/confirm?callback=<Auth.js URL>`.
@@ -142,7 +144,7 @@ The Resend provider's `sendVerificationRequest` is ours: it builds the email wit
 
 **Key invariants**:
 - No email is ever sent to an address that is not invited and not the owner.
-- A person with no `invites` row (and not the owner) has no rows in `sessions`.
+- A person with no `invites` row (and not the owner) has no session that `requireUser()` accepts; removal deletes their sessions, and any session that slips through a race is deleted on its first use.
 - The owner is never in `invites` and can never be removed.
 - Emails are compared lowercased and trimmed everywhere.
 
@@ -157,8 +159,9 @@ The Resend provider's `sendVerificationRequest` is ours: it builds the email wit
 
 **Critical test scenarios**:
 - Happy path (Playwright smoke with the email captured from the dev log): owner signs in, invites a second email, the second email signs in and lands on the workspace, verifies **AC-1**, **AC-5**, **AC-6**.
-- Refusal (Vitest on the callback): an uninvited email returns the check email redirect, writes `sign_in.refused`, and the mailer is not called, verifies **AC-2**.
-- Removal (Vitest against Postgres): removing a person deletes the invite and their sessions in one transaction, and their next `auth()` returns null, verifies **AC-7**.
+- Refusal (Vitest against the pinned Auth.js version): for an invited and an uninvited email, both through the sign in action and a direct POST to `/api/auth/signin/resend`, the status and `Location` header are identical; the uninvited one writes `sign_in.refused` and the mailer is not called, verifies **AC-2**.
+- Removal (Vitest against Postgres): removing a person deletes the invite, their sessions and their `verification_tokens` in one transaction; their next `requireUser()` fails; after inviting them again, the old token is still refused, verifies **AC-7**, **AC-10**.
+- Stale session: a session row for a user with no invite (the race, or a former owner after `OWNER_EMAIL` changes) is refused by `requireUser()` and deleted, verifies **AC-3**, **AC-7**.
 - Owner protection: `DELETE /api/people/<owner email>` answers 409, verifies **AC-8**.
 - Rate limit: the fourth request for one email in 10 minutes is refused with no email sent, verifies **AC-9**.
 - Permission: a non owner calling `GET /api/people` gets 404; an unauthenticated `GET /api/takes` gets 401, verifies **AC-3**, **AC-5**.
@@ -169,10 +172,10 @@ Tracer Bullet: one thin path from the sign in page to a protected workspace firs
 
 1. Spec 0002 Slice 1 sign in migration (users, accounts, sessions, verification tokens, invites, user settings, audit events, rate limit hits), satisfies **AC-1**, **AC-7**.
 2. `auth.ts` with the Resend provider (our `sendVerificationRequest`, 15 minute links, dev log fallback), Drizzle adapter, database sessions, the two phase `signIn` callback against `OWNER_EMAIL` and `invites`, and `events.signIn`, satisfies **AC-1**, **AC-2**, **AC-10**.
-3. Request guard: cookie presence middleware plus `requireUser()` and `requireOwner()`, and the safe `next` redirect, satisfies **AC-3**, **AC-4**.
+3. Request guard: cookie presence middleware plus `requireUser()` (with the per request invite check) and `requireOwner()`, and the safe `next` redirect, satisfies **AC-3**, **AC-4**, **AC-7**.
 4. Sign in, check email, confirm and error pages, and the account menu with sign out, satisfies **AC-1**, **AC-2**, **AC-10**, **AC-11**.
 5. Rate limit in the `signIn` callback with `rate_limit_hits`, and the daily pg-boss prune job in the worker, satisfies **AC-9**.
-6. People page and `/api/people` (list, invite or resend, remove in one transaction with the confirm dialog, owner protected), with audit events, satisfies **AC-5**, **AC-6**, **AC-7**, **AC-8**.
+6. People page and `/api/people` (list, invite or resend, remove (invite, sessions and verification tokens) in one transaction with the confirm dialog, owner protected), with audit events, satisfies **AC-5**, **AC-6**, **AC-7**, **AC-8**.
 
 ## Consequences
 
@@ -184,10 +187,10 @@ Tracer Bullet: one thin path from the sign in page to a protected workspace firs
 **Negative / tradeoffs**:
 - Sign in depends on Resend delivering email; if Resend is down, nobody new can sign in (existing sessions keep working for 30 days).
 - An uninvited visitor gets no feedback beyond "check your email".
-- One session query per request.
+- One session query and one invite lookup per request.
 
 **Neutral**:
-- Changing the owner means changing `OWNER_EMAIL` and redeploying.
+- Changing the owner means changing `OWNER_EMAIL` and redeploying. The former owner keeps access only if they are in `invites`; otherwise `requireUser()` signs them out on their next request.
 - The People page is the only admin surface; there are no roles beyond owner and person.
 
 ## Follow-up
