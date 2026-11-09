@@ -6,7 +6,7 @@ A long lived Node service that takes jobs from pg-boss and runs the pipeline ste
 
 ## Stack
 
-Node 22, ESM, run with `tsx` (no compile step at runtime). pg-boss and `pg` via `@take-studio/db`. ffmpeg and ffprobe 7 from the pinned static build in the Docker image. ESLint with `typescript-eslint`, Vitest.
+Node 22, ESM, run with `tsx` (no compile step at runtime). pg-boss imported directly; `@take-studio/db` for the pool, schema and progress helpers. ffmpeg and ffprobe 7 from the pinned static build in the Docker image. ESLint with `typescript-eslint`, Vitest.
 
 ## Key files
 

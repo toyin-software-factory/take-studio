@@ -21,15 +21,15 @@ Drizzle ORM 0.44 and drizzle-kit 0.31 on `pg`. Consumed as TypeScript source (`e
 ## Commands
 
 ```bash
-pnpm db:generate     # write a migration from schema.ts changes
-pnpm db:migrate      # apply migrations (needs DATABASE_URL in the shell)
+pnpm -w db:generate  # write a migration from schema.ts changes (works from any directory)
+pnpm -w db:migrate   # apply migrations (needs DATABASE_URL in the shell)
 pnpm --filter @take-studio/db lint
 pnpm --filter @take-studio/db typecheck
 ```
 
 ## Conventions
 
-- Change the schema in `src/schema.ts`, then run `pnpm db:generate` and commit the SQL and journal together. Never hand edit an applied migration.
+- Change the schema in `src/schema.ts`, then run `pnpm -w db:generate` and commit the SQL and journal together. Never hand edit an applied migration.
 - Every owned table carries the owner's id, and every query filters by it.
 - Root `## Rules` apply.
 

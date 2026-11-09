@@ -19,7 +19,8 @@ Tracer Bullet (each slice works end to end, from storage and the worker through 
 ```bash
 pnpm install                    # install
 docker compose up -d --wait     # local Postgres :5432 and MinIO :9000
-set -a; . ./.env; set +a        # apps read env from the shell (copy .env.example first)
+cp .env.example .env           # then fill in local values (DATABASE_URL at least, see README "Run locally")
+set -a; . ./.env; set +a        # apps read env from the shell
 pnpm db:migrate                 # apply Drizzle migrations
 pnpm dev                        # web on :3000 plus worker
 pnpm lint && pnpm typecheck && pnpm test && pnpm build   # what CI runs
