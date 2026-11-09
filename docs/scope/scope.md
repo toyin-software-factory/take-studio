@@ -22,7 +22,7 @@ _These are recommendations to keep the build orderly, not requirements. You deci
 | # | Feature | Phase | Status |
 |---|---------|-------|--------|
 | 1 | Stack & architecture | Foundation | in-progress |
-| 2 | Coding standards & tooling | Foundation | planned |
+| 2 | Coding standards & tooling | Foundation | in-progress |
 | 3 | Data model | Foundation | planned |
 | 4 | Design system & workspace shell | Foundation | planned |
 | 5 | Invite only sign in | Slice 1 | planned |
@@ -47,10 +47,10 @@ Pick the stack, hosting, storage, queue and transcription provider, then scaffol
    - [ ] Dev deploy answers 200 and CI runs on every PR
 Spec 0001
 
-### 2. Coding standards & tooling
+### 2. Coding standards & tooling · in-progress
 Capture conventions and tooling from the real scaffold so every later PR follows the same rules.
 **Done when:** root `AGENTS.md` reflects the real stack, and lint, format, typecheck and CI run clean.
-- [ ] Capture conventions + tooling choices: `/audit`
+- [x] Capture conventions + tooling choices: `/audit`
 - [ ] Install the tooling: `/develop tooling`
 
 ### 3. Data model · needs a decision
