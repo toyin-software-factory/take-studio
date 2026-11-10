@@ -6,16 +6,18 @@ The Next.js app: the three panel workspace (library, stage, inspector) and the A
 
 ## Stack
 
-Next.js 15 (App Router), React 19, Tailwind CSS 4 (`@tailwindcss/postcss`), pg-boss and `pg` for enqueueing and listening, Vitest. Radix primitives, Auth.js and `next/font` arrive with their features (spec 0001).
+Next.js 15 (App Router), React 19, Tailwind CSS 4 (`@tailwindcss/postcss`), pg-boss and `pg` for enqueueing and listening, Vitest. Radix primitives (dialog, tooltip, toast) and `next/font` (Archivo, JetBrains Mono) are in; Auth.js arrives with its feature (spec 0001).
 
 ## Key files
 
-| File                                     | Owns                                                                    |
-| ---------------------------------------- | ----------------------------------------------------------------------- |
-| `src/app/layout.tsx`, `src/app/page.tsx` | Root layout and the workspace page                                      |
-| `src/app/globals.css`                    | Tailwind entry; `DESIGN.md` tokens become CSS variables here            |
-| `src/lib/server.ts`                      | Process wide Postgres pool and pg-boss instance, cached on `globalThis` |
-| `src/app/api/wiring/jobs/`               | Wiring proof: enqueue a no op job and stream its progress (SSE)         |
+| File                                              | Owns                                                                                                     |
+| ------------------------------------------------- | -------------------------------------------------------------------------------------------------------- |
+| `src/app/layout.tsx`, `src/app/page.tsx`          | Root layout and the workspace page                                                                       |
+| `src/app/globals.css`                             | Tailwind entry; `DESIGN.md` tokens become CSS variables here                                             |
+| `src/components/ui/`, `src/components/workspace/` | Base components (button, input, kbd, step chip, dialog, toast, tooltip) and the static three panel shell |
+| `src/app/design/`                                 | Unlinked gallery of the base components                                                                  |
+| `src/lib/server.ts`                               | Process wide Postgres pool and pg-boss instance, cached on `globalThis`                                  |
+| `src/app/api/wiring/jobs/`                        | Wiring proof: enqueue a no op job and stream its progress (SSE)                                          |
 
 ## Commands
 
