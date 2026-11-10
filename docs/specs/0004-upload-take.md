@@ -171,7 +171,7 @@ The library learns about probe results by refetching the take list when the tab 
 - The web app never receives video bytes; only R2 does.
 - A take is `completed` only when R2 holds an object whose size equals `takes.size_bytes`.
 - Presigned URLs are signed for one key and one part number, for one hour, and only for the owner of that take.
-- At most one `take.probe` job per take is queued or running (pg-boss singleton key).
+- At most one `take.probe` job per take is queued or running: the `take.probe` queue is created with pg-boss policy `stately` and every send uses `singletonKey = takeId`, which pg-boss enforces with a unique index across the queued and active states (the sweep's send for a take that already has a probe is a no op). A probe is also idempotent: it writes its result in one transaction that locks the take row and only writes when `probed_at` and `failure_code` are both still null, and only that writing transaction calls the pipeline queueing helper, so a repeated probe can never queue a second run.
 
 **Security model**: Every endpoint requires a session and owner checks the take (404 otherwise). Presigned part URLs are scoped to the take's key and expire after an hour; the bucket stays private. Size and type are checked in the browser for speed and again on the server for safety; the real duration is checked by the worker. Filenames are stored as text and only ever rendered escaped.
 
