@@ -1,6 +1,6 @@
 # 0001 Stack and architecture
 
-**Status**: Proposed
+**Status**: Accepted (approved by Toyin 2026-11-09)
 **Date**: 2026-11-09
 **Scope feature**: 1. Stack & architecture (`docs/scope/scope.md`)
 
@@ -63,7 +63,7 @@ Take Studio is one TypeScript monorepo with two deployable services: a Next.js w
 
 ## Environment variables (names only)
 
-`DATABASE_URL`, `R2_ACCOUNT_ID`, `R2_ACCESS_KEY_ID`, `R2_SECRET_ACCESS_KEY`, `R2_BUCKET`, `DEEPGRAM_API_KEY`, `AUTH_SECRET`, `AUTH_RESEND_KEY`, `EMAIL_FROM`, `APP_URL`.
+`DATABASE_URL`, `R2_ACCOUNT_ID`, `R2_ACCESS_KEY_ID`, `R2_SECRET_ACCESS_KEY`, `R2_BUCKET`, `DEEPGRAM_API_KEY`, `AUTH_SECRET`, `AUTH_RESEND_KEY`, `AUTH_TRUST_HOST`, `EMAIL_FROM`, `APP_URL`, `OWNER_EMAIL` (`AUTH_TRUST_HOST` and `OWNER_EMAIL` added by spec 0003).
 
 ## Consequences
 
@@ -75,7 +75,7 @@ Take Studio is one TypeScript monorepo with two deployable services: a Next.js w
 ## Setup only Toyin can do (asked for after the scaffold merges)
 
 1. Railway: a project `take-studio` with a `dev` environment, and an invite for the factory GitHub app or a project token.
-2. Cloudflare R2: a private bucket `take-studio-dev`, an API token scoped to it, and a bucket CORS policy that allows the dev app origin (`APP_URL`) with methods `PUT`, `GET` and `HEAD`, allowed header `Content-Type`, and exposed header `ETag` (multipart upload needs the ETag of each part). Without it, direct browser uploads fail even with valid presigned URLs.
+2. Cloudflare R2: a private bucket `take-studio-dev`, an API token scoped to it, and a bucket CORS policy that allows the dev app origin (`APP_URL`) with methods `PUT`, `GET` and `HEAD`, allowed header `Content-Type`, and exposed header `ETag` (multipart upload needs the ETag of each part). Without it, direct browser uploads fail even with valid presigned URLs. Also a lifecycle rule that aborts incomplete multipart uploads after 14 days (a backstop; spec 0004).
 3. Deepgram: an API key.
 4. Resend: an API key and a verified sending domain (DNS records) for sign in emails.
 5. GitHub repo settings: squash merge only, delete head branches. The repo is currently public; say if it should be private.

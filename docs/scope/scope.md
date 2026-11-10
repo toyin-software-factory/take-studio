@@ -16,6 +16,7 @@ _These are recommendations to keep the build orderly, not requirements. You deci
 - **Transcript:** words can be corrected, and an SRT caption file timed to the final cut can be downloaded.
 - **Studio background:** one per person, uploaded in settings, used for every take that person processes.
 - **Pause detection:** any silence of 0.8 seconds or more becomes a numbered cut; each person can change that length in settings, and any single cut can be switched back on.
+- **Upload and sign in (2026-11-10):** MP4 and MOV up to 25 GB. Someone who isn't invited sees the same "check your email" screen and gets no email. Any take can be deleted after a confirm, which also removes its files from storage.
 
 ## At a glance
 
@@ -23,10 +24,10 @@ _These are recommendations to keep the build orderly, not requirements. You deci
 | --- | ------------------------------------------ | ---------- | ----------- |
 | 1   | Stack & architecture                       | Foundation | in-progress |
 | 2   | Coding standards & tooling                 | Foundation | done        |
-| 3   | Data model                                 | Foundation | planned     |
+| 3   | Data model                                 | Foundation | in-progress |
 | 4   | Design system & workspace shell            | Foundation | planned     |
-| 5   | Invite only sign in                        | Slice 1    | planned     |
-| 6   | Upload a take to the library               | Slice 1    | planned     |
+| 5   | Invite only sign in                        | Slice 1    | in-progress |
+| 6   | Upload a take to the library               | Slice 1    | in-progress |
 | 7   | Processing pipeline with real progress     | Slice 2    | planned     |
 | 8   | Trim: pauses as reversible cuts            | Slice 2    | planned     |
 | 9   | Preview and timeline                       | Slice 2    | planned     |
@@ -47,7 +48,8 @@ Pick the stack, hosting, storage, queue and transcription provider, then scaffol
 - [x] Scaffold from the decision: `/develop stack & architecture`
   - [x] Web app and worker run locally against Postgres and object storage
   - [ ] Dev deploy answers 200 and CI runs on every PR
-        Spec 0001
+
+Spec 0001
 
 ### 2. Coding standards & tooling · done
 
@@ -57,12 +59,20 @@ Capture conventions and tooling from the real scaffold so every later PR follows
 - [x] Capture conventions + tooling choices: `/audit`
 - [x] Install the tooling: `/develop tooling`
 
-### 3. Data model · needs a decision
+### 3. Data model · in-progress
 
 People, invites, settings (pause length, background), takes, pipeline runs and steps, cuts, transcript words, exports.
 **Done when:** every later slice (cut toggles, word edits, export) fits without a breaking migration, and every row is scoped to its owner.
 
-- [ ] Design it (spec): `/architect data model`
+- [x] Design it (spec): `/architect data model`
+- [ ] Build it: `/develop data model` (each slice adds its own tables, as one migration in that slice's PR)
+  - [ ] Slice 1 tables: people and access, takes and uploads, owner scoped helpers (AC-1, AC-2, AC-5, AC-6, AC-7)
+  - [ ] Slice 2 tables: runs, steps, assets, cuts, current run and cut toggle (AC-3, AC-4, AC-5)
+  - [ ] Slice 4 and 5 tables: transcript words with corrections, exports (AC-1, AC-3, AC-7)
+- [ ] Verify it: `/check verify data model`
+- [ ] Document it: `/document data model`
+
+spec [0002](../specs/0002-data-model.md)
 
 ### 4. Design system & workspace shell
 
@@ -74,26 +84,43 @@ Turn `DESIGN.md` into tokens, fonts and base components, and lay out the three p
 
 ## Slice 1: Sign in and upload
 
-### 5. Invite only sign in · needs a decision
+### 5. Invite only sign in · in-progress
 
 Email sign in for invited people only; Toyin can invite and remove people.
 **Done when:** an invited email can sign in, an uninvited one cannot, and each person sees only their own takes.
 
-- [ ] Design it (spec): `/architect invite only sign in`
+- [x] Design it (spec): `/architect invite only sign in`
+- [ ] Build it: `/develop invite only sign in`
+  - [ ] Magic link sign in gated by the invite list, with the request guard on every route (AC-1, AC-2, AC-3, AC-4)
+  - [ ] Sign in, check email and error pages, sign out, rate limit (AC-9, AC-10, AC-11)
+  - [ ] People page: invite, resend, remove, owner protected (AC-5, AC-6, AC-7, AC-8)
+- [ ] Verify it: `/check verify invite only sign in`
+- [ ] Document it: `/document invite only sign in`
 
-### 6. Upload a take to the library · needs a decision
+spec [0003](../specs/0003-invite-only-sign-in.md)
+
+### 6. Upload a take to the library · in-progress
 
 Upload a raw take of up to 30 minutes straight to storage, resuming after a dropped connection, and list it in the library.
 **Done when:** a 30 minute take uploads with a real percentage, survives a dropped connection, and appears as a 32px library row with duration and state; a failed upload shows "Failed" and a next step.
 
-- [ ] Design it (spec): `/architect upload a take`
+- [x] Design it (spec): `/architect upload a take`
+- [ ] Build it: `/develop upload a take`
+  - [ ] Thin path: create, sign parts, complete, worker probe writes the duration (AC-1, AC-3, AC-8, AC-9)
+  - [ ] Library panel: rows in every state, drop zone, queue, empty state, pagination (AC-1, AC-4, AC-11)
+  - [ ] Robust uploader: parallel parts, retries, offline pause, resume after reload (AC-5, AC-6, AC-7)
+  - [ ] Cancel, delete takes, validation toasts, expiry sweep, 30 minute dev run (AC-2, AC-9, AC-10, AC-12, AC-13)
+- [ ] Verify it: `/check verify upload a take`
+- [ ] Document it: `/document upload a take`
+
+spec [0004](../specs/0004-upload-take.md)
 
 ## Slice 2: Trim, preview, timeline
 
 ### 7. Processing pipeline with real progress · needs a decision
 
 A queue runs trim, key, place, transcribe in that fixed order on the worker and reports each step's progress.
-**Done when:** every step chip shows pending, running with a determinate percentage, or done with a check and duration; a failed step says why and can be retried; no spinner anywhere. Until Slice 3 ships, key and place pass the raw take through (marked as skipped on their chips) and the preview is a 720p proxy of the raw take, so no background is needed in this slice.
+**Done when:** every step chip shows pending, running with a determinate percentage, or done with a check and duration; a failed step says why and can be retried; no spinner anywhere. Until Slice 3 ships, key and place pass the raw take through (marked as skipped on their chips) and the preview is a 720p proxy of the raw take, so no background is needed in this slice. Transcribe is likewise skipped until Slice 4 ships the transcript.
 
 - [ ] Design it (spec): `/architect processing pipeline`
 
