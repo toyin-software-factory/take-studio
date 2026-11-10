@@ -26,7 +26,7 @@ The open questions are how the invite list gates sign in, how the first owner ex
 
 - **AC-1**: An invited email (or `OWNER_EMAIL`) entered on `/sign-in` receives an email "Sign in to Take Studio" with a link that signs them in and lands on the workspace. The link works once and expires after 15 minutes.
 - **AC-2**: An email that is not invited receives no email. The response is the same as for an invited address (same redirect, same status, same page), both from the sign in form and from a direct request to `/api/auth/signin/resend`, and the attempt is logged as `sign_in.refused`.
-- **AC-3**: Every page except the sign in pages, and every route under `/api` except `/api/auth/*` and `/api/health`, refuses a request without a valid session: pages redirect to `/sign-in?next=<path>`, API routes answer 401.
+- **AC-3**: Every page except the sign in pages, and every route under `/api` except `/api/auth/*`, `/api/sign-in/confirm` and `/api/health`, refuses a request without a valid session: pages redirect to `/sign-in?next=<path>`, API routes answer 401.
 - **AC-4**: A signed in person can read and change only their own takes, settings and background. Asking for another person's take by id answers 404.
 - **AC-5**: The owner sees a People page at `/settings/people` listing every invited email with its state (`Invited` or `Active`, with the date of first sign in) and can invite an email and remove a person. Anyone else gets 404 for that page and its API.
 - **AC-6**: Inviting an email adds it to the list and sends a short invite email with a link to `/sign-in`. Inviting an email that is already invited only resends that email, at most once a minute.
@@ -107,13 +107,14 @@ Seeding the owner from `OWNER_EMAIL` avoids a setup script or a first user wins 
 
 **API surface** (route handlers in `apps/web`; Auth.js owns `/api/auth/*`):
 
-| Endpoint             | Method    | Key inputs                                                         | Key outputs                                    | Auth   | Key errors                                                      |
-| -------------------- | --------- | ------------------------------------------------------------------ | ---------------------------------------------- | ------ | --------------------------------------------------------------- |
-| `/api/auth/*`        | GET, POST | Auth.js (`signin/resend`, `callback/resend`, `signout`, `session`) | Auth.js                                        | public | rate limit message (429 text on our sign in form action)        |
-| `/api/people`        | GET       | none                                                               | `[{ email, state, firstSignInAt, invitedAt }]` | owner  | 401, 404 for non owner                                          |
-| `/api/people`        | POST      | `email: string` (req)                                              | `{ email, state }`, 201 new, 200 resent        | owner  | 400 invalid email, 409 is the owner, 429 resent within a minute |
-| `/api/people/:email` | DELETE    | email in path (URL encoded)                                        | 204                                            | owner  | 404 not invited, 409 is the owner                               |
-| `/api/health`        | GET       | none                                                               | `{ ok: true }`                                 | public | none                                                            |
+| Endpoint               | Method    | Key inputs                                                         | Key outputs                                                                         | Auth   | Key errors                                                                             |
+| ---------------------- | --------- | ------------------------------------------------------------------ | ----------------------------------------------------------------------------------- | ------ | -------------------------------------------------------------------------------------- |
+| `/api/auth/*`          | GET, POST | Auth.js (`signin/resend`, `callback/resend`, `signout`, `session`) | Auth.js                                                                             | public | rate limit message (429 text on our sign in form action)                               |
+| `/api/people`          | GET       | none                                                               | `[{ email, state, firstSignInAt, invitedAt }]`                                      | owner  | 401, 404 for non owner                                                                 |
+| `/api/people`          | POST      | `email: string` (req)                                              | `{ email, state }`, 201 new, 200 resent                                             | owner  | 400 invalid email, 409 is the owner, 429 resent within a minute                        |
+| `/api/people/:email`   | DELETE    | email in path (URL encoded)                                        | 204                                                                                 | owner  | 404 not invited, 409 is the owner                                                      |
+| `/api/health`          | GET       | none                                                               | `{ ok: true }`                                                                      | public | none                                                                                   |
+| `/api/sign-in/confirm` | POST      | form field `callback` (the Auth.js callback URL)                   | 303 to the callback URL with `confirm=<nonce>`, nonce cookie set (_Callback guard_) | public | 403 foreign `Origin`, 400 callback not on `APP_URL` or not `/api/auth/callback/resend` |
 
 The sign in form posts to a server action that validates the email and calls Auth.js `signIn("resend", { email, redirectTo: next })`. The rate limit is not in the action: it is in the `signIn` callback, so posting straight to `/api/auth/signin/resend` is limited too.
 
@@ -162,7 +163,7 @@ The Resend provider's `sendVerificationRequest` is ours: it builds the email wit
 - The owner is never in `invites` and can never be removed.
 - Emails are compared lowercased and trimmed everywhere.
 
-**Security model**: Owner: everything a person can do plus `/settings/people` and `/api/people`. Person: their own takes, settings and background only. Visitor: the sign in pages and `/api/health`. Auth.js handles CSRF on its routes, and session cookies are `httpOnly`, `secure`, `sameSite=lax`. Magic link tokens are stored hashed by Auth.js. Invite and remove actions, and every sign in success or refusal, are written to `audit_events`. Emails and IP addresses are personal data; nothing here is in a regulated scope. Secrets (`AUTH_SECRET`, `AUTH_RESEND_KEY`) come from Railway environment variables and are never logged.
+**Security model**: Owner: everything a person can do plus `/settings/people` and `/api/people`. Person: their own takes, settings and background only. Visitor: the sign in pages, `/api/sign-in/confirm` and `/api/health`. Auth.js handles CSRF on its routes, and session cookies are `httpOnly`, `secure`, `sameSite=lax`. Magic link tokens are stored hashed by Auth.js. Invite and remove actions, and every sign in success or refusal, are written to `audit_events`. Emails and IP addresses are personal data; nothing here is in a regulated scope. Secrets (`AUTH_SECRET`, `AUTH_RESEND_KEY`) come from Railway environment variables and are never logged.
 
 **Configuration required**:
 
