@@ -16,6 +16,7 @@ _These are recommendations to keep the build orderly, not requirements. You deci
 - **Transcript:** words can be corrected, and an SRT caption file timed to the final cut can be downloaded.
 - **Studio background:** one per person, uploaded in settings, used for every take that person processes.
 - **Pause detection:** any silence of 0.8 seconds or more becomes a numbered cut; each person can change that length in settings, and any single cut can be switched back on.
+- **Upload and sign in (2026-11-10):** MP4 and MOV up to 25 GB. Someone who isn't invited sees the same "check your email" screen and gets no email. Any take can be deleted after a confirm, which also removes its files from storage.
 
 ## At a glance
 
@@ -108,7 +109,7 @@ Upload a raw take of up to 30 minutes straight to storage, resuming after a drop
   - [ ] Thin path: create, sign parts, complete, worker probe writes the duration (AC-1, AC-3, AC-8, AC-9)
   - [ ] Library panel: rows in every state, drop zone, queue, empty state, pagination (AC-1, AC-4, AC-11)
   - [ ] Robust uploader: parallel parts, retries, offline pause, resume after reload (AC-5, AC-6, AC-7)
-  - [ ] Cancel, remove failed takes, validation toasts, expiry sweep, 30 minute dev run (AC-2, AC-9, AC-10, AC-12)
+  - [ ] Cancel, delete takes, validation toasts, expiry sweep, 30 minute dev run (AC-2, AC-9, AC-10, AC-12, AC-13)
 - [ ] Verify it: `/check verify upload a take`
 - [ ] Document it: `/document upload a take`
 
